@@ -2,7 +2,6 @@ import {Router, Request, Response} from 'express'
 
 import { AppDataSource } from '../data-source'
 
-
 import { Carrera } from '../entidades/Carrera'
 import { Curso } from '../entidades/Curso'
 import { Laboratorio } from '../entidades/Laboratorio';
@@ -79,26 +78,30 @@ router.post('/matricula', async (req: Request, res: Response) => {
             })
         }
 
+
+        horarios.map( async (labo: string) => {
             
-        const laboratorio = await laboratorioRepository.findOne({
-            where: {
-                id_laboratorio: horarios
-            }
-        })
-
-        if( !laboratorio ){
-            return res.status(500).json({
-                msg: `Laboratorio incorrecto ${laboratorio}`,
+            const laboratorio = await laboratorioRepository.findOne({
+                where: {
+                    id_laboratorio: labo
+                }
             })
-        }
-
-            try{
-                estudiante!.matriculas.push(laboratorio!)
-                await estudianteRepository.save(estudiante)
-                
-                return res.status(200).json({
-                    estudiante
+    
+            if( !laboratorio ){
+                return res.status(500).json({
+                    msg: `Laboratorio incorrecto ${laboratorio}`,
                 })
+            }
+            estudiante!.matriculas.push(laboratorio!)
+        })
+            
+            try{
+                
+                await estudianteRepository.save(estudiante)
+                return res.status(200).json({
+                    msg: 'Matricula registrada',
+                })
+
             }catch(e){
                 return res.status(500).json({
                     msg: 'Error en matricula',
